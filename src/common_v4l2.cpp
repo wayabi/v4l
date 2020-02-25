@@ -16,6 +16,9 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	enum v4l2_buf_type type;
 	struct v4l2_format fmt;
 	struct v4l2_requestbuffers req;
+	struct v4l2_streamparm parm;
+	parm.parm.capture.timeperframe.numerator = 1;
+	parm.parm.capture.timeperframe.denominator = 260;
 	unsigned int i;
 
 	fd_ = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
@@ -27,14 +30,14 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	fmt.fmt.pix.width	   = x_res;
 	fmt.fmt.pix.height	  = y_res;
-	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
 	fmt.fmt.pix.field	   = V4L2_FIELD_INTERLACED;
 	xioctl(fd_, VIDIOC_S_FMT, &fmt);
 	if ((fmt.fmt.pix.width != x_res) || (fmt.fmt.pix.height != y_res))
 		printf("Warning: driver is sending image at %dx%d\n",
 			fmt.fmt.pix.width, fmt.fmt.pix.height);
 	COMMON_V4L2_CLEAR(req);
-	req.count = 2;
+	req.count = 1;
 	req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	req.memory = V4L2_MEMORY_MMAP;
 	xioctl(fd_, VIDIOC_REQBUFS, &req);

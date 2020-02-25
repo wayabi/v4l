@@ -13,13 +13,13 @@ static void save_ppm(
 	FILE *fout;
 	char out_name[256];
 
-	sprintf(out_name, "out%03d.ppm", i);
+	sprintf(out_name, "./out/%03d.jpg", i);
 	fout = fopen(out_name, "w");
 	if (!fout) {
 		perror("error: fopen");
 		exit(EXIT_FAILURE);
 	}
-	fprintf(fout, "P6\n%d %d 255\n", x_res, y_res);
+	//fprintf(fout, "P6\n%d %d 255\n", x_res, y_res);
 	fwrite(data, data_lenght, 1, fout);
 	fclose(fout);
 }
@@ -31,11 +31,11 @@ int main(void) {
 	unsigned int
 		i,
 		x_res = 640,
-		y_res = 480
+		y_res = 360
 	;
 
 	v4.init(dev_name, x_res, y_res);
-	for (i = 0; i < 20; i++) {
+	for (i = 0; i < 30; i++) {
 		v4.update_image();
 		save_ppm(
 			i,
