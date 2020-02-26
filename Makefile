@@ -3,10 +3,10 @@ CFLAGS    = -g -MMD -MP -Wextra -Wno-format -Wno-sign-compare -Winit-self -Wno-m
 ifeq "$(shell getconf LONG_BIT)" "64"
   LDFLAGS = -L/usr/lib64 -L/usr/local/lib
 else
-  LDFLAGS = -L/usr/local/lib -L/home/pi/installed/boost_1_70_0/stage/lib
+  LDFLAGS = -L/usr/local/lib
 endif
-LIBS      = -lv4l2
-INCLUDE   = -I./include -I/home/pi/installed/boost_1_70_0
+LIBS      = -lv4l2 -lpthread
+INCLUDE   = -I./include 
 TARGET    = ./a.out
 SRCDIR    = ./src
 ifeq "$(strip $(SRCDIR))" ""

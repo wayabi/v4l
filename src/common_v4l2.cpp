@@ -1,4 +1,7 @@
 #include "common_v4l2.h"
+#include <iostream>
+
+using namespace std;
 
 void common_v4l2::xioctl(int fh, unsigned long int request, void *arg)
 {
@@ -16,6 +19,9 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	enum v4l2_buf_type type;
 	struct v4l2_format fmt;
 	struct v4l2_requestbuffers req;
+	struct v4l2_streamparm parm;
+	parm.parm.capture.timeperframe.numerator = 1;
+	parm.parm.capture.timeperframe.denominator = 260;
 	unsigned int i;
 
 	fd_ = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);
@@ -27,7 +33,8 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	fmt.fmt.pix.width	   = x_res;
 	fmt.fmt.pix.height	  = y_res;
-	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
 	fmt.fmt.pix.field	   = V4L2_FIELD_INTERLACED;
 	xioctl(fd_, VIDIOC_S_FMT, &fmt);
 	if ((fmt.fmt.pix.width != x_res) || (fmt.fmt.pix.height != y_res))
@@ -39,6 +46,7 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	req.memory = V4L2_MEMORY_MMAP;
 	xioctl(fd_, VIDIOC_REQBUFS, &req);
 	buffers_ = (CommonV4l2_Buffer*)calloc(req.count, sizeof(*buffers_));
+
 	for (n_buffers_ = 0; n_buffers_ < req.count; ++n_buffers_) {
 		COMMON_V4L2_CLEAR(buf_);
 		buf_.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -87,25 +95,28 @@ void common_v4l2::update_image(){
 	buf_.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	buf_.memory = V4L2_MEMORY_MMAP;
 	xioctl(fd_, VIDIOC_DQBUF, &buf_);
+
+	shared_ptr<vector<char>> buf = make_shared<vector<char>>();
+	buf->resize(buffers_[buf_.index].length);
+	memcpy(&(*buf.get())[0], buffers_[buf_.index].start, buffers_[buf_.index].length);
+	fetched_.push_back(buf);
+	if(fetched_.size() >= size_buf_fetched_){
+		fetched_.pop_front();
+	}
 	xioctl(fd_, VIDIOC_QBUF, &buf_);
-}
-
-char* common_v4l2::get_image(){
-	return ((char *)buffers_[buf_.index].start);
-}
-
-size_t common_v4l2::get_image_size(){
-	return buffers_[buf_.index].length;
 }
 
 void common_v4l2::deinit(){
 	unsigned int i;
 	enum v4l2_buf_type type;
 
+
 	type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	xioctl(fd_, VIDIOC_STREAMOFF, &type);
-	for (i = 0; i < n_buffers_; ++i)
+	for (i = 0; i < n_buffers_; ++i){
 		v4l2_munmap(buffers_[i].start, buffers_[i].length);
+	}
 	v4l2_close(fd_);
 	free(buffers_);
+
 }

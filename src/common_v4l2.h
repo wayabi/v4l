@@ -11,6 +11,10 @@
 #include <sys/time.h>
 #include <sys/types.h>
 
+#include <vector>
+#include <deque>
+#include <memory>
+
 #include <libv4l2.h>
 #include <linux/videodev2.h>
 
@@ -26,15 +30,18 @@ public:
 	static void xioctl(int fh, unsigned long int request, void *arg);
 	void init(char *dev_name, unsigned int x_res, unsigned int y_res);
 	void update_image();
-	char* get_image();
-	size_t get_image_size();
 	void deinit();
+
+public:
+	std::deque<std::shared_ptr<std::vector<char>>> fetched_;
 
 private:
 	int fd_;
 	CommonV4l2_Buffer* buffers_;
 	struct v4l2_buffer buf_;
 	unsigned int n_buffers_;
+
+	const int size_buf_fetched_ = 100;
 };
 
 
