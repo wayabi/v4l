@@ -38,10 +38,14 @@ static void save_ppm(
 	fclose(fout);
 }
 
-void decode(std::shared_ptr<vector<char>> d, int w, int h)
+void decode(std::shared_ptr<vector<char>> d, int w, int h, int idx)
 {
 	Mat m(h, w, CV_8UC3);
 	jpeg_decoder::decode((unsigned char*)(m.data), w*h*3, (unsigned char*)(&(*(d.get()))[0]), d->size());
+
+	stringstream ss;
+	ss << "./out/" << idx << ".bmp";
+	imwrite(ss.str().c_str(), m);
 }
 
 int main(void) {
@@ -55,6 +59,7 @@ int main(void) {
 	;
 
 	v4.init(dev_name, x_res, y_res);
+	v4.set_exposure(300);
 
 	StdInThread stdin_thread;
 	stdin_thread.start(NULL);
@@ -78,7 +83,7 @@ int main(void) {
 		v4.update_image();
 
 		if(v4.fetched_.size() > 0){
-			pool_.post(std::bind(decode, v4.fetched_[0], x_res, y_res));
+			pool_.post(std::bind(decode, v4.fetched_[0], x_res, y_res, ++count1));
 			v4.fetched_.pop_front();
 		}
 

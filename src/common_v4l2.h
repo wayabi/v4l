@@ -31,6 +31,7 @@ public:
 	void init(char *dev_name, unsigned int x_res, unsigned int y_res);
 	void update_image();
 	void deinit();
+	void set_exposure(int v);
 
 public:
 	std::deque<std::shared_ptr<std::vector<char>>> fetched_;

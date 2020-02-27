@@ -119,3 +119,22 @@ void common_v4l2::deinit(){
 	free(buffers_);
 
 }
+
+void common_v4l2::set_exposure(int v)
+{
+	if(v >= 0){
+		v4l2_control c;
+		c.id = V4L2_CID_EXPOSURE_AUTO;
+		c.value = V4L2_EXPOSURE_MANUAL;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+
+		c.id = V4L2_CID_EXPOSURE_ABSOLUTE;
+		c.value = v;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+	}else{
+		v4l2_control c;
+		c.id = V4L2_CID_EXPOSURE_AUTO;
+		c.value = V4L2_EXPOSURE_AUTO;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+	}
+}
