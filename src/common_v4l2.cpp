@@ -120,6 +120,38 @@ void common_v4l2::deinit(){
 
 }
 
+void common_v4l2::set_brightness(int v)
+{
+		v4l2_control c;
+		c.id = V4L2_CID_BRIGHTNESS;
+		c.value = v;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+}
+
+void common_v4l2::set_hue(int v)
+{
+		v4l2_control c;
+		c.id = V4L2_CID_HUE;
+		c.value = v;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+}
+
+void common_v4l2::set_colour(int v)
+{
+		v4l2_control c;
+		c.id = V4L2_CID_SATURATION;
+		c.value = v;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+}
+
+void common_v4l2::set_contrast(int v)
+{
+		v4l2_control c;
+		c.id = V4L2_CID_CONTRAST;
+		c.value = v;
+		xioctl(fd_, VIDIOC_S_CTRL, &c);
+}
+
 void common_v4l2::set_exposure(int v)
 {
 	if(v >= 0){

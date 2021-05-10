@@ -12,6 +12,7 @@
 #include "StdInThread.h"
 #include "thread_pool.h"
 #include "jpeg_decoder.h"
+#include "wifi_display_sender.h"
 
 using namespace std;
 using namespace boost;
@@ -48,24 +49,38 @@ void decode(std::shared_ptr<vector<char>> d, int w, int h, int idx)
 	imwrite(ss.str().c_str(), m);
 }
 
+void send_data(
+	std::shared_ptr<wifi_display_sender> sender,
+	unsigned char i,
+	unsigned int x_res,
+	unsigned int y_res,
+	std::shared_ptr<std::vector<char>> data
+) {
+	sender->send(i, x_res, y_res, data);
+}
+
 int main(void) {
+	std::shared_ptr<wifi_display_sender> sender_ = std::make_shared<wifi_display_sender>(0, "192.168.11.10", 12345);
 	common_v4l2 v4;
 	char *dev_name = "/dev/video0";
 	struct buffer *buffers;
 	unsigned int
 		i,
 		x_res = 640,
-		y_res = 480 
+		y_res = 360
 	;
 
 	v4.init(dev_name, x_res, y_res);
-	v4.set_exposure(300);
+	//v4.set_exposure(-1);
+	v4.set_brightness(100);
+	v4.set_contrast(58);
+	v4.set_colour(100);
 
 	StdInThread stdin_thread;
 	stdin_thread.start(NULL);
 
 	asio::io_service io_service_;
-	thread_pool pool_(io_service_, 3);
+	thread_pool pool_(io_service_, 1);
 	
 	int count0 = 0;
 	int count1 = 0;
@@ -73,18 +88,19 @@ int main(void) {
 	while(true){
 		profile_timer::count_fps();
 		float fps = profile_timer::get_fps();
-		if(++count0 % 100 == 0){
-			cout << fps << endl;
-			//if(v4.fetched_.size() > 0)
-			//save_ppm(++count1, x_res, y_res, v4.fetched_[0]->size(), &(*(v4.fetched_[0].get()))[0] );
-			
-		}
 
 		v4.update_image();
 
-		if(v4.fetched_.size() > 0){
-			pool_.post(std::bind(decode, v4.fetched_[0], x_res, y_res, ++count1));
-			v4.fetched_.pop_front();
+		if(++count0 % 3 == 0){
+			if(count0 % 100 == 0){
+				cout << fps << endl;
+			}
+			if(v4.fetched_.size() > 0){
+				//pool_.post(std::bind(decode, v4.fetched_[0], x_res, y_res, ++count1));
+				//pool_.post(std::bind(save_ppm, ++count1, x_res, y_res, v4.fetched_[0]->size(), &(*(v4.fetched_[0].get()))[0]));
+				pool_.post(std::bind(send_data, sender_, 0, x_res, y_res, v4.fetched_[0]));
+				v4.fetched_.pop_front();
+			}
 		}
 
 		stdin_thread.ss.lock();

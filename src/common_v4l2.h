@@ -32,6 +32,10 @@ public:
 	void update_image();
 	void deinit();
 	void set_exposure(int v);
+	void set_brightness(int v);
+	void set_hue(int v);
+	void set_colour(int v);
+	void set_contrast(int v);
 
 public:
 	std::deque<std::shared_ptr<std::vector<char>>> fetched_;
