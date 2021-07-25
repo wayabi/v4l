@@ -32,6 +32,12 @@ public:
 	{
 		io_service_.post(f);
 	}
+
+	void join()
+	{
+		work_.reset();
+		group_.join_all();
+	}
 };
 
 #endif

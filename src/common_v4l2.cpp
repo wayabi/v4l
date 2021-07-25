@@ -34,7 +34,15 @@ void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
 	fmt.fmt.pix.width	   = x_res;
 	fmt.fmt.pix.height	  = y_res;
 	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_MJPEG;
-	fmt.fmt.pix.field	   = V4L2_FIELD_INTERLACED;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_GREY;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_BGR24;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB565;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_SGRBG8;
+	//fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_Y16;
+	//fmt.fmt.pix.field	   = V4L2_FIELD_INTERLACED;
+	fmt.fmt.pix.field	   = V4L2_FIELD_NONE;
+	fmt.fmt.pix.colorspace = V4L2_COLORSPACE_JPEG;
 	xioctl(fd_, VIDIOC_S_FMT, &fmt);
 	if ((fmt.fmt.pix.width != x_res) || (fmt.fmt.pix.height != y_res))
 		printf("Warning: driver is sending image at %dx%d\n",

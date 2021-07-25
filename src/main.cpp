@@ -13,6 +13,8 @@
 #include "thread_pool.h"
 #include "jpeg_decoder.h"
 #include "wifi_display_sender.h"
+#include "arg_parse.h"
+#include "boost_util.h"
 
 using namespace std;
 using namespace boost;
@@ -59,8 +61,14 @@ void send_data(
 	sender->send(i, x_res, y_res, data);
 }
 
-int main(void) {
-	std::shared_ptr<wifi_display_sender> sender_ = std::make_shared<wifi_display_sender>(0, "192.168.11.10", 12345);
+int main(int argc, char** argv) {
+	arg_parse args;
+	string parse_err = args.parse(argc, argv);
+	if(parse_err.size() > 0){
+		_le << parse_err;
+		return 1;
+	}
+	std::shared_ptr<wifi_display_sender> sender_ = std::make_shared<wifi_display_sender>(0, args.ip_address.c_str(), args.port);
 	common_v4l2 v4;
 	char *dev_name = "/dev/video0";
 	struct buffer *buffers;
@@ -72,9 +80,13 @@ int main(void) {
 
 	v4.init(dev_name, x_res, y_res);
 	//v4.set_exposure(-1);
-	v4.set_brightness(100);
-	v4.set_contrast(58);
-	v4.set_colour(100);
+	//v4.set_brightness(100);
+	//v4.set_contrast(58);
+	//v4.set_colour(100);
+	v4.set_exposure(args.exposure);
+	v4.set_brightness(args.brightness);
+	v4.set_contrast(args.contrast);
+	v4.set_colour(args.colour);
 
 	StdInThread stdin_thread;
 	stdin_thread.start(NULL);
