@@ -15,13 +15,13 @@ void common_v4l2::xioctl(int fh, unsigned long int request, void *arg)
 	}
 }
 
-void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res) {
+void common_v4l2::init(char *dev_name, unsigned int x_res, unsigned int y_res, int fps) {
 	enum v4l2_buf_type type;
 	struct v4l2_format fmt;
 	struct v4l2_requestbuffers req;
 	struct v4l2_streamparm parm;
 	parm.parm.capture.timeperframe.numerator = 1;
-	parm.parm.capture.timeperframe.denominator = 260;
+	parm.parm.capture.timeperframe.denominator = fps;
 	unsigned int i;
 
 	fd_ = v4l2_open(dev_name, O_RDWR | O_NONBLOCK, 0);

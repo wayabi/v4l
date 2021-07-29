@@ -28,7 +28,7 @@ typedef struct {
 class common_v4l2 {
 public:
 	static void xioctl(int fh, unsigned long int request, void *arg);
-	void init(char *dev_name, unsigned int x_res, unsigned int y_res);
+	void init(char *dev_name, unsigned int x_res, unsigned int y_res, int fps);
 	void update_image();
 	void deinit();
 	void set_exposure(int v);

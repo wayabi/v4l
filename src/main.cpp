@@ -74,11 +74,11 @@ int main(int argc, char** argv) {
 	struct buffer *buffers;
 	unsigned int
 		i,
-		x_res = 640,
-		y_res = 360
+		x_res = args.w_camera,
+		y_res = args.h_camera 
 	;
 
-	v4.init(dev_name, x_res, y_res);
+	v4.init(dev_name, x_res, y_res, args.fps);
 	//v4.set_exposure(-1);
 	//v4.set_brightness(100);
 	//v4.set_contrast(58);
